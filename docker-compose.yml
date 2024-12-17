@@ -1,4 +1,3 @@
----
 version: '3.9'
 services:
   app:
@@ -8,8 +7,6 @@ services:
     # image: neonmmd/websurfx:nocache
     # Uncomment the line below if you want to use the `memory` image.
     image: neonmmd/websurfx:memory
-    # Uncomment the line below if you want to use the `redis` image.
-    # image: neonmmd/websurfx:redis
     ports:
       - 8080:8080
     # Uncomment the following lines if you are using the `hybrid/latest` or `redis` image.
@@ -24,3 +21,10 @@ services:
   #   image: redis:latest
   #   ports:
   #     - 6379:6379
+  builder:
+    build: .
+    image: ghcr.io/${GITHUB_REPOSITORY}:latest
+    push: true
+    secrets:
+      - name: GITHUB_TOKEN
+        value: ${{ secrets.GITHUB_TOKEN }}
