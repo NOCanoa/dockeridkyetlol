@@ -21,10 +21,3 @@ services:
   #   image: redis:latest
   #   ports:
   #     - 6379:6379
-  builder:
-    build: .
-    image: ghcr.io/${GITHUB_REPOSITORY}:latest
-    push: true
-    secrets:
-      - name: GITHUB_TOKEN
-        value: ${{ secrets.GITHUB_TOKEN }}
