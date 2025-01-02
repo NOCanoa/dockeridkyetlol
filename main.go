@@ -97,6 +97,11 @@ func bus(w http.ResponseWriter, r *http.Request) {
 }
 
 func bus2(w http.ResponseWriter, r *http.Request) {
+	// Add CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 	print("bus")
 	print(r.URL.Query().Get("bus-line"))
 	sublineId := r.URL.Query().Get("bus-line")
@@ -104,30 +109,31 @@ func bus2(w http.ResponseWriter, r *http.Request) {
 	busAPI := "https://api.moverick.es/tracking/last_position_buses?template=passenger_route&subline_id=" + sublineId + "&calculated=true"
 	print(busAPI + "\n")
 
+	// Handle preflight OPTIONS request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	response, err := fetchJSON(busAPI)
 	if err != nil {
 		http.Error(w, "Error fetching bus data: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Get data array from response
+	// Rest of your existing code remains the same
 	data, ok := response.(map[string]interface{})["data"].([]interface{})
 	if !ok {
 		http.Error(w, "Invalid data format", http.StatusInternalServerError)
 		return
 	}
 
-	// Print raw data for debugging
-	/* fmt.Printf("Raw data: %+v\n", data) */
-
 	funcMap := template.FuncMap{
 		"multiply": func(a, b float64) float64 {
 			return a * b
 		},
 	}
-	/* css idea style="background: linear-gradient(90deg, #00bf009e {{multiply .distance_over_route 100}}% , white {{multiply .distance_over_route 100}}% ); */
 	tmpl := template.New("bus").Funcs(funcMap)
-	// Modify the existing template to include map:
 	tmpl, err = tmpl.Parse(`
 <div class="bus-container">
 	{{range .}}
